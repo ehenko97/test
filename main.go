@@ -52,8 +52,6 @@ func maskLink(byteSlice, mask []byte) {
 			for k := i + httpLength; k < endIndex; k++ {
 				byteSlice[k] = '*'
 			}
-			// Прерывание после первого совпадения
-			break
 		}
 	}
 }
