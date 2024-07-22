@@ -28,7 +28,6 @@ func main() {
 	}
 }
 
-// Оставляем вашу оригинальную функцию maskLink
 func maskLink(byteSlice, mask []byte) {
 	httpLength := len(mask)
 	for i := 0; i <= len(byteSlice)-httpLength; i++ {
