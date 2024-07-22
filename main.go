@@ -1,45 +1,45 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
+
+	"awesomeProject/service"
 )
 
 func main() {
-	// Чтение строки из стандартного ввода
-	fmt.Print("INPUT: ")
-	text, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run main.go <input_file> [<output_file>]")
+		return
+	}
 
-	// Преобразование строки в срез байтов
-	byteSlice := []byte(text)
+	inputFile := os.Args[1]
+	outputFile := "output.txt"
+	if len(os.Args) >= 3 {
+		outputFile = os.Args[2]
+	}
 
-	// Маскирование ссылок, начинающихся с "http://"
-	maskLink(byteSlice, []byte("http://"))
+	prod := service.NewFileProducer(inputFile)
+	pres := service.NewFilePresenter(outputFile)
 
-	// Печать измененного байтового среза как строки
-	fmt.Printf("OUTPUT: %s\n", string(byteSlice))
+	srv := service.NewService(prod, pres)
+	if err := srv.Run(); err != nil {
+		fmt.Printf("Error: %v\n", err)
+	}
 }
 
-// Функция для маскирования ссылок, начинающихся с "http://"
+// Оставляем вашу оригинальную функцию maskLink
 func maskLink(byteSlice, mask []byte) {
-	// Длина подстроки "http://"
 	httpLength := len(mask)
-
-	// Проход по байтовому срезу и поиск подстрок, начинающихся с "http://"
 	for i := 0; i <= len(byteSlice)-httpLength; i++ {
 		match := true
-
-		// Проверка совпадения с "http://"
 		for j := 0; j < httpLength; j++ {
 			if byteSlice[i+j] != mask[j] {
 				match = false
 				break
 			}
 		}
-		// Если найдено совпадение, замена последующих символов на '*'
 		if match {
-			// Индекс конца ссылки
 			endIndex := i + httpLength
 			for endIndex < len(byteSlice) && (byteSlice[endIndex] >= 'a' && byteSlice[endIndex] <= 'z' ||
 				byteSlice[endIndex] >= 'A' && byteSlice[endIndex] <= 'Z' ||
@@ -47,8 +47,6 @@ func maskLink(byteSlice, mask []byte) {
 				byteSlice[endIndex] == '.' || byteSlice[endIndex] == '/' || byteSlice[endIndex] == ':' || byteSlice[endIndex] == '?') {
 				endIndex++
 			}
-
-			// Маскирование символов
 			for k := i + httpLength; k < endIndex; k++ {
 				byteSlice[k] = '*'
 			}
